@@ -1,2 +1,2 @@
 # octcode
-Generate unique error code inspired by unix numeric permissions mechanism
+A node.js module that generates unique error code. inspired by unix numeric permissions mechanism
