@@ -1,0 +1,28 @@
+{
+  "name": "octcode",
+  "version": "0.0.1",
+  "description": "A node.js module that generates unique error code, inspired by unix numeric permissions mechanism",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oferitz/octcode.git"
+  },
+  "keywords": [
+    "error",
+    "codes",
+    "generator"
+  ],
+  "author": "Ofer Itzhaki",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/oferitz/octcode/issues"
+  },
+  "homepage": "https://github.com/oferitz/octcode#readme",
+  "dependencies": {}
+}
