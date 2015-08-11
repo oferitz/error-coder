@@ -24,5 +24,7 @@
     "url": "https://github.com/oferitz/octcode/issues"
   },
   "homepage": "https://github.com/oferitz/octcode#readme",
-  "dependencies": {}
+  "dependencies": {
+    "lodash": "^3.10.1"
+  }
 }
