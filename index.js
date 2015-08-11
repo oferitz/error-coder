@@ -1,1 +1,1 @@
-var Octcode = require('./lib/octcode');
+require('./lib/octcode');
