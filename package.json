@@ -1,7 +1,7 @@
 {
   "name": "octcode",
   "version": "0.0.1",
-  "description": "A node.js module that generates unique error code, inspired by unix numeric permissions mechanism",
+  "description": "A node.js module that generates unique error codes.",
   "main": "index.js",
   "directories": {
     "test": "test"
