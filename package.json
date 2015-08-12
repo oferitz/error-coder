@@ -1,6 +1,6 @@
 {
   "name": "octcode",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A node.js module that generates unique error codes.",
   "main": "index.js",
   "directories": {
