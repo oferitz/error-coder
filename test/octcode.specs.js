@@ -155,8 +155,6 @@ describe('Octcode tests', function() {
 		});
 		/*
 			oc.add(400, 25, "The error has occured in file: ssdf.txt");
-
-
 			oc= new octcode('BAZ', ...
 			oc.add(400, 25, "fstst.x);
 		 */
