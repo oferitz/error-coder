@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "test"
+    "test": "mocha -c test/**/*.js"
   },
   "repository": {
     "type": "git",
@@ -26,5 +26,8 @@
   "homepage": "https://github.com/oferitz/octcode#readme",
   "dependencies": {
     "lodash": "^3.10.1"
+  },
+  "devDependencies": {
+    "mocha": "^2.2.5"
   }
 }
