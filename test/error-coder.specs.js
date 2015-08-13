@@ -1,6 +1,6 @@
 var assert = require('assert');
 var _ = require('lodash');
-var octcode = require('../lib/octcode');
+var octcode = require('../lib/error-coder');
 
 describe('Octcode tests', function() {
 	describe('initialization', function () {

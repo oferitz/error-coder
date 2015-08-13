@@ -1,1 +1,1 @@
-module.exports = require('./lib/octcode');
+module.exports = require('./lib/error-coder');
