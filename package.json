@@ -1,5 +1,5 @@
 {
-  "name": "octcode",
+  "name": "error-coder",
   "version": "0.0.2",
   "description": "A node.js module that generates unique error codes.",
   "main": "index.js",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/oferitz/octcode.git"
+    "url": "git+https://github.com/oferitz/error-coder.git"
   },
   "keywords": [
     "error",
@@ -21,9 +21,9 @@
   "author": "Ofer Itzhaki",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/oferitz/octcode/issues"
+    "url": "https://github.com/oferitz/error-coder/issues"
   },
-  "homepage": "https://github.com/oferitz/octcode#readme",
+  "homepage": "https://github.com/oferitz/error-coder#readme",
   "dependencies": {
     "lodash": "^3.10.1"
   },
