@@ -72,84 +72,55 @@ var ErrorCoder = require('error-coder');
 var EC = new ErrorCoder(options);
 ```
 
+Create new instance and passes the options object to the constructor class
+
+`options` include:
+  * `namespace {String}`: The name that will prefix the unique errorCode.
+    if omitted it will be created automatically for you. 
+  * `errorsMap {Object}`: An object that define possible errors and their related messages (see example above}.
+
+  
 ## EC.setStatus(statusCode)
 
-Create a new directory and any necessary subdirectories at `dir` with octal
-permission string `opts.mode`. If `opts` is a non-object, it will be treated as
-the `opts.mode`.
+Set a new group of errors. The `statusCode` should match to one of your `errorsMap` entries. 
+After setting new status adding new error(`EC.add`) and sending (`EC.send`)
+are related to the current status until you set a `statusCode`
 
-If `opts.mode` isn't specified, it defaults to `0777 & (~process.umask())`.
-
-`cb(err, made)` fires with the error or the first directory `made`
-that had to be created, if any.
-
-You can optionally pass in an alternate `fs` implementation by passing in
-`opts.fs`. Your implementation should have `opts.fs.mkdir(path, mode, cb)` and
-`opts.fs.stat(path, cb)`.
 
 ## EC.add(errorCode, [messageVariables])
 
-Synchronously create a new directory and any necessary subdirectories at `dir`
-with octal permission string `opts.mode`. If `opts` is a non-object, it will be
-treated as the `opts.mode`.
+Add new error to the list of current status code errors. Needles to say that he `errorCode` should match one of the entries in the `errorsMap`
 
-If `opts.mode` isn't specified, it defaults to `0777 & (~process.umask())`.
-
-Returns the first directory that had to be created, if any.
-
-You can optionally pass in an alternate `fs` implementation by passing in
-`opts.fs`. Your implementation should have `opts.fs.mkdirSync(path, mode)` and
-`opts.fs.statSync(path)`.
+The error messages supports [`util.format`](https://nodejs.org/api/util.html#util_util_format_format) for message formatting
+so in `messageVariables` you can pass any variables that will replace your `errorsMap` messages placeholders.
 
 ## EC.send([response])
 
-Synchronously create a new directory and any necessary subdirectories at `dir`
-with octal permission string `opts.mode`. If `opts` is a non-object, it will be
-treated as the `opts.mode`.
+Send the current errors object.
 
-If `opts.mode` isn't specified, it defaults to `0777 & (~process.umask())`.
+If `response` is omitted it will return an object. Otherwise it will automatically send http.response
 
-Returns the first directory that had to be created, if any.
+The `response` could be "native" node.js `http.ServerResponse` or express.js response object.
 
-You can optionally pass in an alternate `fs` implementation by passing in
-`opts.fs`. Your implementation should have `opts.fs.mkdirSync(path, mode)` and
-`opts.fs.statSync(path)`.
-
-# usage
-
-This package also ships with a `mkdirp` command.
-
-```
-usage: mkdirp [DIR1,DIR2..] {OPTIONS}
-
-  Create each supplied directory including any necessary parent directories that
-  don't yet exist.
-  
-  If the directory already exists, do nothing.
-
-OPTIONS are:
-
-  -m, --mode   If a directory needs to be created, set the mode as an octal
-               permission string.
-
-```
 
 # install
 
-With [npm](http://npmjs.org) do:
-
 ```
-npm install mkdirp
+npm install error-coder
 ```
 
-to get the library, or
+# test
 
 ```
-npm install -g mkdirp
+npm test
 ```
-
-to get the command.
-
 # license
 
-MIT
+(The MIT License)
+
+Copyright (c) 2015 Ofer Itzhaki & the Contributors
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the 'Software'), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
