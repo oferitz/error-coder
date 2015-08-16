@@ -17,7 +17,10 @@ describe('error-coder tests', function() {
 				.setStatus(400)
 				.add(25, 'FOO', {num: 255})
 				.add(35, 'BAR')
-				.add(45, 'A1', 'A2', 'A3', 'A4');
+				.add(45, 'A1', 'A2', 'A3', 'A4')
+				.send({status: function() {
+					return 'bluebird';
+				}});
 			done();
 		});
 
