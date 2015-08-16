@@ -34,7 +34,7 @@ function handleRequest(req, res) {
     EC
     .add(15, 'username')
     .add(25, 'url')
-    .send(res);  // auto response: `res.status(this.currentStatus).json(generatedErrorsObject)`
+    .send(res);  // auto: `res.status(this.currentStatus).json(generatedErrorsObject)`
   }
   
   EC.setStatus(503);
@@ -77,7 +77,7 @@ Create new instance and passes the options object to the constructor class
 `options` include:
   * `namespace {String}`: The name that will prefix the unique errorCode.
     if omitted it will be created automatically for you. 
-  * `errorsMap {Object}`: An object that define possible errors and their related messages (see example above}.
+  * `errorsMap {Object}`: An object that define possible errors and their related messages (see example above).
 
   
 ## EC.setStatus(statusCode)
