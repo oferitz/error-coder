@@ -3,6 +3,7 @@ var _ = require('lodash');
 var httpMocks  = require('node-mocks-http');
 var MockRes = require('mock-res');
 var errCoder = require('../lib/error-coder');
+console.log(require('http').STATUS_CODES);
 
 describe('error-coder tests', function() {
 	describe('initialization', function () {
