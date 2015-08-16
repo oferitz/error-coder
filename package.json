@@ -29,6 +29,7 @@
   },
   "devDependencies": {
     "mocha": "^2.2.5",
+    "mock-res": "^0.3.0",
     "node-mocks-http": "^1.4.3"
   }
 }

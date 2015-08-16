@@ -1,6 +1,7 @@
 var assert = require('assert');
 var _ = require('lodash');
 var httpMocks  = require('node-mocks-http');
+var MockRes = require('mock-res');
 var errCoder = require('../lib/error-coder');
 
 describe('error-coder tests', function() {
@@ -188,6 +189,27 @@ describe('error-coder tests', function() {
 			done();
 		});
 
+		it('should send http response - node.js native support', function (done) {
+			var errMap = {
+				400: {
+					25: 'simple message'
+				}
+			};
 
+			var res = new MockRes(function() {
+				var resData = res._getJSON();
+				assert.strictEqual(res.statusCode, 400, 'failed to send http response - node.js native support - wrong status code');
+				assert.strictEqual(resData.status, 400, 'failed to send http response - node.js native support - wrong status code in returned object');
+				assert.strictEqual(resData.errorsList.errors[0].errorCode, 'DEFAULT40025', 'failed to send http response - node.js native support support - incorrect code');
+				assert.strictEqual(resData.errorsList.errors[0].errorMessage, errMap[400][25], 'failed to send http response - node.js native support - incorrect message');
+				done();
+			});
+
+			var ec = new errCoder({errorsMap: errMap});
+			ec.setStatus(400);
+			ec.add(25);
+			ec.send(res);
+
+		});
 	});
 });
