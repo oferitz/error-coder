@@ -34,7 +34,7 @@ function handleRequest(req, res) {
     EC
     .add(15, 'username')
     .add(25, 'url')
-    .send(res);  // auto response: `response.status(this.currentStatus).json(generatedErrorsObject)`
+    .send(res);  // auto response: `res.status(this.currentStatus).json(generatedErrorsObject)`
   }
   
   EC.setStatus(503);
