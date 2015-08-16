@@ -1,176 +1,193 @@
 var assert = require('assert');
 var _ = require('lodash');
+var httpMocks  = require('node-mocks-http');
 var errCoder = require('../lib/error-coder');
 
 describe('error-coder tests', function() {
 	describe('initialization', function () {
 		it('should generate provided namespace', function (done) {
-			var ec = new errCoder({errorsMap: {
-				400: {
-					25: "file with the name %s not found because of %j",
-					35: "port %s",
-					45: "fireman %s %s %s %s"
-				}
-			}});
-
-			var result = ec
-				.setStatus(400)
-				.add(25, 'FOO', {num: 255})
-				.add(35, 'BAR')
-				.add(45, 'A1', 'A2', 'A3', 'A4')
-				.send({status: function() {
-					return 'bluebird';
-				}});
+			var ec = new errCoder({namespace: 'TST'});
+			assert.strictEqual(ec.namespace, 'TST', 'failed to generate default namespace if one is not provided');
 			done();
 		});
 
-		xit('should generate default namespace if one is not provided', function (done) {
-			var ns = new octcode().namespace;
-			assert.strictEqual(ns, 'DEFAULT', 'failed to generate default namespace if one is not provided');
+		it('should generate default namespace if one is not provided', function (done) {
+			var ec2 = new errCoder();
+			assert.strictEqual(ec2.namespace, 'DEFAULT', 'failed to generate default namespace if one is not provided');
 			done();
 		});
 
-		xit('should throw when provided namespace is not string', function (done) {
+		it('should throw when provided namespace is not string', function (done) {
 			assert.throws(
 					function() {
-							new octcode(6);
+							new errCoder({namespace: 6});
 					},
 					'failed to throw Error when provided namespace is not string'
 			);
 			done();
 		});
 
-		xit('should initialize variables', function (done) {
-			var ns = new octcode('test');
-			assert.strictEqual(ns.delimiter, '\n', 'failed to initialize delimiter variable');
-			assert.ok(_.isObject(ns.history), 'failed to initialize history variable, history is not an Object');
-			assert.strictEqual(Object.keys(ns.history).length, 0, 'failed to initialize history variable, history is not an empty Object');
-			assert.strictEqual(ns.currentBit, 0, 'failed to initialize currentBit variable');
-			assert.strictEqual(ns.currentStatus, 0, 'failed to initialize currentStatus variable');
-			assert.ok(_.isArray(ns.messages), 'failed to initialize history variable, messages is not an Array');
-			assert.strictEqual(ns.messages.length, 0, 'failed to initialize messages variable, messages is not an empty Array');
+		it('should generate provided errorsMap', function (done) {
+			var em = {
+				400: {
+					25: 'abc'
+				}
+			};
+			var ec = new errCoder({errorsMap: em});
+			assert.deepEqual(ec.errorsMap, em, 'failed to generate provided errorsMap');
 			done();
 		});
 
-		xit('should support initialization with status parameter', function (done) {
-			var ns = new octcode('test2');
-			ns.init(400);
-			assert.strictEqual(ns.currentStatus, 400, 'failed to support initialization with status parameter');
+		it('should generate default errorsMap if one is not provided', function (done) {
+			var ec2 = new errCoder();
+			assert.strictEqual(Object.keys(ec2.errorsMap).length, 0, 'failed to generate default errorMap if one is not provided');
 			done();
 		});
 
-		xit('should support passing custom delimiter as option on initialization', function (done) {
-			var ns = new octcode('test3', {delimiter: ','});
-			assert.strictEqual(ns.delimiter, ',', 'failed to initialize delimiter variable');
+		it('should throw when provided errorsMap is not an Object', function (done) {
+			assert.throws(
+				function() {
+					new errCoder({errorsMap: 6});
+				},
+				'failed to throw Error when provided errorsMap is not an Object'
+			);
 			done();
 		});
-
-		xit('should support passing options as the first argument', function (done) {
-			var ns = new octcode({delimiter: ','});
-			assert.strictEqual(ns.delimiter, ',', 'support passing options as the first argument');
+		it('should initialize variables', function (done) {
+			var ec = new errCoder();
+			assert.ok(_.isObject(ec.errorsLog), 'failed to initialize errorsLog variable, errorsLog is not an Object');
+			assert.strictEqual(Object.keys(ec.errorsLog).length, 0, 'failed to initialize errorsLog variable, errorsLog is not an empty Object');
+			assert.strictEqual(ec.currentStatus, 0, 'failed to initialize currentStatus variable');
 			done();
 		});
 	});
 
-	xdescribe('add method', function () {
-		it('should throw Error when status parameter is not provided', function (done) {
-			var ns = new octcode('BAR');
+	describe('setStatus method', function () {
+		it('should throw Error when statusCode is not provided', function (done) {
+			var ec = new errCoder();
 			assert.throws(
 				function() {
-					ns.add();
+					ec.setStatus();
 				},
-				'failed to throw Error when provided namespace is not string'
+				'failed to throw Error when statusCode is not provided'
 			);
 			done();
 		});
 
-		it('should generate correct codes and errors - simple', function (done) {
-			var oc = new octcode('BAR');
-			var actual = oc.add(400);
-			assert.strictEqual(actual.code, 'BAR4001', 'failed to generate the correct code');
-			assert.strictEqual(actual.errors, 'unknown error', 'failed to generate default error');
-			done();
-		});
-
-		it('should generate correct codes and errors - grouped', function (done) {
-			var oc = new octcode('BAR', {delimiter: '|'});
-			oc.add(400, 'a');
-			oc.add(400, 'b');
-			var actual = oc.add(400, 'c');
-			assert.strictEqual(actual.code, 'BAR4007', 'failed to generate the correct code');
-			assert.strictEqual(actual.errors, 'a|b|c', 'failed to generate the correct errors');
-			done();
-		});
-
-		it('should generate correct codes and errors - switch status codes', function (done) {
-			var oc = new octcode('BAR', {delimiter: '|'});
-			oc.add(400, 'a');
-			oc.add(400, 'b');
-			var actual = oc.add(401, 'c');
-			assert.strictEqual(actual.code, 'BAR4011', 'failed to generate the correct code');
-			assert.strictEqual(actual.errors, 'c', 'failed to generate the correct errors');
-			actual = oc.add(500, 'c1');
-			assert.strictEqual(actual.code, 'BAR5001', 'failed to generate the correct code');
-			assert.strictEqual(actual.errors, 'c1', 'failed to generate the correct errors');
-			done();
-		});
-
-
-		it('should generate correct codes and errors - use history (return to already used status code from the point we left it)', function (done) {
-			var oc = new octcode('BAR', {delimiter: '|'});
-			oc.add(400, 'a400-1');
-			oc.add(400, 'b400-3');
-			oc.add(401, 'c');
-			oc.add(500, 'c1');
-			oc.add(500, 'c2');
-			oc.add(400, 'c400-7');
-			var actual = oc.add(400, 'd400-15');
-			assert.strictEqual(actual.code, 'BAR40015', 'failed to generate the correct code');
-			assert.strictEqual(actual.errors, 'a400-1|b400-3|c400-7|d400-15', 'failed to generate the correct errors');
+		it('should set the current status', function (done) {
+			var ec = new errCoder();
+			ec.setStatus(200);
+			assert.strictEqual(ec.currentStatus, 200, 'failed to set the current status');
+			ec.setStatus(300);
+			assert.strictEqual(ec.currentStatus, 300, 'failed to set the current status');
+			ec.setStatus(400);
+			assert.strictEqual(ec.currentStatus, 400, 'failed to set the current status');
+			ec.setStatus(500);
+			assert.strictEqual(ec.currentStatus, 500, 'failed to set the current status');
 			done();
 		});
 	});
 
-	xdescribe('get method', function () {
-		it('should return Error when passing status code that is not found', function (done) {
-			var oc = new octcode('BAZ');
-			var actual = oc.get(500);
-			var isError = actual instanceof Error;
-			assert.ok(isError, 'failed to return Error when passing status code that is not found - did not return Error');
-			assert.strictEqual(actual.message, 'no errors for status code 500', 'failed to return Error when passing status code that is not found - incorrect message');
+	describe('add method', function () {
+		it('should throw Error when not passing error code', function (done) {
+			var ec = new errCoder();
+			assert.throws(
+				function() {
+					ec.add();
+				},
+				'failed to throw Error when errorCode is not provided'
+			);
 			done();
 		});
 
-		it('should get result when passing status code that is the current status code', function (done) {
-			var oc = new octcode('BAZ', {delimiter: '|'});
-			oc.add(400, 'a1');
-			oc.add(400, 'a2');
-			oc.add(400, 'a3');
-			oc.add(500, 'b1');
-			oc.add(400, 'a4');
-			var actual = oc.get(400);
-			assert.strictEqual(actual.code, 'BAZ40015', 'failed to get result when passing status code that is the current status code - incorrect code');
-			assert.strictEqual(actual.errors, 'a1|a2|a3|a4', 'failed to get result when passing status code that is the current status code - incorrect errors');
+		it('should throw Error when trying to add error before setting status', function (done) {
+			var ec = new errCoder();
+			assert.throws(
+				function() {
+					ec.add();
+				},
+				'failed to throw Error when errorCode is not provided'
+			);
 			done();
 		});
 
-		it('should get result when passing status code that is not the current status code', function (done) {
-			var oc = new octcode('BAZ', {delimiter: '|'});
-			oc.add(400, 'a1');
-			oc.add(400, 'a2');
-			oc.add(400, 'a3');
-			oc.add(500, 'b1');
-			oc.add(500, 'b2');
-			oc.add(400, 'a4');
-			var actual = oc.get(500);
-			assert.strictEqual(actual.code, 'BAZ5003', 'failed to get result when passing status code that is not the current status code - incorrect code');
-			assert.strictEqual(actual.errors, 'b1|b2', 'failed to get result when passing status code that is not the current status code - incorrect errors');
+		it('should add new error - simple (message without variables)', function (done) {
+			var errMap = {
+				400: {
+					25: 'simple message'
+				}
+			};
+			var ec = new errCoder({errorsMap: errMap});
+			ec.setStatus(400);
+			ec.add(25);
+			assert.strictEqual(ec.errorsLog[400].errors[0].errorCode, 'DEFAULT40025', 'failed to add new error - simple (message without variables) - incorrect code');
+			assert.strictEqual(ec.errorsLog[400].errors[0].errorMessage, errMap[400][25], 'failed to add new error - simple (message without variables) - incorrect message');
 			done();
 		});
-		/*
-			oc.add(400, 25, "The error has occured in file: ssdf.txt");
-			oc= new octcode('BAZ', ...
-			oc.add(400, 25, "fstst.x);
-		 */
+
+		it('should add new error - with variables (message with variables)', function (done) {
+			var errMap = {
+				400: {
+					25: 'message with %s string variable and %d number variable and %j variable'
+				}
+			};
+			var ec = new errCoder({errorsMap: errMap});
+			ec.setStatus(400);
+			ec.add(25, 'ONE', 1, {json: 'one JSON'});
+			assert.strictEqual(ec.errorsLog[400].errors[0].errorMessage, 'message with ONE string variable and 1 number variable and {"json":"one JSON"} variable', 'failed to add new error - simple (message without variables) - incorrect message');
+			done();
+		});
+	});
+
+	describe('send method', function () {
+		it('should throw Error when trying to send before adding any errors', function (done) {
+			var ec = new errCoder();
+			assert.throws(
+				function() {
+					ec.send();
+				},
+				'failed to throw Error when trying to send before adding any errors'
+			);
+			done();
+		});
+
+		it('should return errors object when no response parameter was sent', function (done) {
+			var errMap = {
+				400: {
+					25: '%s message'
+				}
+			};
+			var ec = new errCoder({errorsMap: errMap});
+			var actual = ec
+				.setStatus(400)
+				.add(25, 'NICE')
+				.send();
+			assert.strictEqual(actual.status, 400, 'failed to return errors object when no response parameter was sent - wrong status');
+			assert.strictEqual(actual.errors.length, 1, 'failed to return errors object when no response parameter was sent - unexpected errors length');
+			assert.strictEqual(actual.errors[0].errorCode, 'DEFAULT40025', 'failed to return errors object when no response parameter was sent - wrong errorCode');
+			assert.strictEqual(actual.errors[0].errorMessage, 'NICE message', 'failed to return errors object when no response parameter was sent - wrong errorCode');
+			done();
+		});
+
+		it('should send http response - express.js support', function (done) {
+			var res = httpMocks.createResponse();
+			var errMap = {
+				400: {
+					25: 'simple message'
+				}
+			};
+			var ec = new errCoder({errorsMap: errMap});
+			ec.setStatus(400);
+			ec.add(25);
+			ec.send(res);
+			var resData = JSON.parse(res._getData());
+			assert.strictEqual(res.statusCode, 400, 'failed to send http response - express.js support - wrong status code');
+			assert.strictEqual(resData.status, 400, 'failed to send http response - express.js support - wrong status code in returned object');
+			assert.strictEqual(resData.errorsList.errors[0].errorCode, 'DEFAULT40025', 'failed to send http response - express.js support - incorrect code');
+			assert.strictEqual(resData.errorsList.errors[0].errorMessage, errMap[400][25], 'failed to send http response - express.js support - incorrect message');
+			done();
+		});
+
+
 	});
 });
