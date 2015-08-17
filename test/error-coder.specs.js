@@ -189,6 +189,38 @@ describe('error-coder tests', function() {
 			assert.strictEqual(ec.errorsLog[400].errorMessages, '\nmessage with ONE string variable and 1 number variable and {"json":"one JSON"} variable', 'failed to add new error - simple (message without variables) - incorrect message');
 			done();
 		});
+
+		it('should ignore un-defined errors', function (done) {
+			var errMap = {
+				400: {
+					15: 'meh'
+				}
+			};
+			var ec = new errCoder({errorsMap: errMap});
+			ec.setStatus(400);
+			ec.add(15)
+				.add(25)
+				.add(35);
+			assert.strictEqual(ec.errorsLog[400].errorCode, 'APP400_15', 'failed to ignore un-defined errors');
+			done();
+		});
+
+		it('should support alpha-numeric errors', function (done) {
+			var errMap = {
+				400: {
+					15: 'meh',
+					'AA': 'meh2',
+					'!@#': 'meh3'
+				}
+			};
+			var ec = new errCoder({errorsMap: errMap});
+			ec.setStatus(400);
+			ec.add(15)
+				.add('AA')
+				.add('!@#');
+			assert.strictEqual(ec.errorsLog[400].errorCode, 'APP400_15_AA_!@#', 'failed to ignore un-defined errors');
+			done();
+		});
 	});
 
 	describe('send method', function () {
