@@ -221,6 +221,25 @@ describe('error-coder tests', function() {
 			assert.strictEqual(ec.errorsLog[400].errorCode, 'APP400_15_AA_!@#', 'failed to ignore un-defined errors');
 			done();
 		});
+
+		it('should support adding after changing status', function (done) {
+			var errMap = {
+				400: {
+					15: 'meh'
+				},
+				500: {
+					'01': 'moo'
+				}
+			};
+			var ec = new errCoder({errorsMap: errMap});
+			ec.setStatus(400);
+			ec.add(15);
+			ec.setStatus(500);
+			ec.add('01');
+			assert.strictEqual(ec.errorsLog[500].errorCode, 'APP500_01', 'failed to ignore un-defined errors');
+			done();
+		});
+
 	});
 
 	describe('send method', function () {
