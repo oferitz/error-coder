@@ -13,7 +13,8 @@ var ErrorCoder = require('error-coder');
 
 var errMap = {
   400: {
-    15: 'invalid request object'
+    15: 'invalid request object',
+    25: 'horrible error number %d'
   },
   422: {
     15: 'missing %s parameter',
@@ -51,17 +52,15 @@ function handleRequest(req, res) {
 ## the generated error object
 
 ```js
-EC.setStatus(400).add(15).send();
+EC.setStatus(400).add(15).add(25, 10025).send();
 ```
 will return:
 
 ```js
 {
   status: 400,
-  errors: [{
-    errorCode: 'APP40015',
-    errorMessage: 'invalid request object'
-  }]
+  errorCode: 'APP400_15_25',
+  errorMessages: 'invalid request object\nhorrible error number 10025'
 }
 ```
 
@@ -76,15 +75,20 @@ Create new instance and passes the options object to the constructor class
 
 `options` include:
   * `namespace {String}`: The name that will prefix the unique errorCode.
-    if omitted it will be created automatically for you. 
+    If omitted it will be created automatically for you, first by trying to read the name attribute from your `package.json` file,
+    if the name includes '-' it takes the first letter of each separated word, otherwise it will just take the first ? 3 letters. 
+    If for some reason the name could be generatd from `package.json` file, the name space will be 'APP'.
   * `errorsMap {Object}`: An object that define possible errors and their related messages (see example above).
+  * `errorDelimiter {string}`: A character for separating the error codes. defaults to `_`.
+  * `messageDelimiter {string}`: A character for separating the errors messages. defaults to `\n`.
 
   
 ## EC.setStatus(statusCode)
 
-Set a new group of errors. The `statusCode` should match to one of your `errorsMap` entries. 
+Set a new group of errors. This is the actual status code of the http response.
+The `statusCode` should match to one of your `errorsMap` entries. 
 After setting new status adding new error(`EC.add`) and sending (`EC.send`)
-are related to the current status until you set a `statusCode`
+will are related to the current status until you set a new `statusCode`
 
 
 ## EC.add(errorCode, [messageVariables])
