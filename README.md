@@ -13,7 +13,7 @@ var ErrorCoder = require('error-coder');
 
 var errMap = {
   400: {
-    15: 'invalid request object',
+    15: 'invalid request object - %s',
     25: 'horrible error number %d'
   },
   422: {
@@ -43,7 +43,7 @@ function handleRequest(req, res) {
     if(err) {
       EC.add(15);
       var errObj = EC.send(); // do not send auto response
-      res.send(errObj.status).json(errObj.errorsList);
+      res.send(errObj.status).json(errObj);
     }
   });
 }
@@ -60,7 +60,7 @@ will return:
 {
   status: 400,
   errorCode: 'APP400_15_25',
-  errorMessages: 'invalid request object\nhorrible error number 10025'
+  errorMessages: 'invalid request object<br>horrible error number 10025'
 }
 ```
 
@@ -80,8 +80,29 @@ Create new instance and passes the options object to the constructor class
     If omitted it will be created automatically for you, first by trying to read the name attribute from your `package.json` file,
     if the name includes '-' it takes the first letter of each separated word, otherwise it will just take the first ? 3 letters. 
     If for some reason the name could be generated from `package.json` file, the name space will be 'APP'.
-  * `errorDelimiter {string}`: A character for separating the error codes. defaults to `_`.
-  * `messageDelimiter {string}`: A character for separating the errors messages. defaults to `<br>`.
+  * `errorDelimiter {String}`: A character for separating the error codes. defaults to `_`.
+  * `messageDelimiter {String}`: A character for separating the errors messages. defaults to `<br>`.
+  * `distinctCodes {Boolean}`: remove duplicate codes from the generated errorCode. defaults to `false`.
+  
+### example using options
+  ```js
+  var EC = new ErrorCoder(errorsMap, {
+    namespace: 'WAT', 
+    errorDelimiter: '-', 
+    messageDelimiter: ', ', 
+    distinctCodes: true
+   });
+   
+  EC.setStatus(400).add(15).add(15).add(25, 1).send();
+  /*
+     will return:
+     {
+      status: 400,
+      errorCode: 'WAT400-15-25,
+      errorMessages: 'invalid request object - foo , 'invalid request object - bar, horrible error number 1'   
+     }
+   */
+  ```
 
   
 ## EC.setStatus(statusCode)
@@ -106,6 +127,10 @@ Send the current errors object.
 If `response` is omitted it will return an object. Otherwise it will automatically send http.response
 
 The `response` could be "native" node.js `http.ServerResponse` or express.js response object.
+
+## EC.getErrorsMap()
+
+returns the current errorsMap
 
 
 # install

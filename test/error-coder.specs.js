@@ -49,7 +49,7 @@ describe('error-coder tests', function() {
 		it('should generate default messageDelimiter if one is not provided', function (done) {
       var EC = new errCoder(errMap);
       var actual = EC.setStatus(400).add(15).send();
-			assert.strictEqual(actual.errorMessages, '<br>meh','failed to generate default messageDelimiter if one is not provided');
+			assert.strictEqual(actual.errorMessages, 'meh<br>','failed to generate default messageDelimiter if one is not provided');
 			done();
 		});
 
@@ -67,26 +67,40 @@ describe('error-coder tests', function() {
       done();
     });
 
-		it('should generate provided errorsMap', function (done) {
+		it('should support provided errorsMap', function (done) {
       var EC = new errCoder(errMap);
       var actual = EC.getErrorsMap();
-			assert.deepEqual(actual, errMap, 'failed to generate provided errorsMap');
+			assert.deepEqual(actual, errMap, 'failed to support provided errorsMap');
 			done();
 		});
 
-		it('should generate provided errorDelimiter', function (done) {
+		it('should support provided errorDelimiter', function (done) {
       var EC = new errCoder(errMap, {errorDelimiter: ','});
       var actual = EC.setStatus(400).add(15).send();
-			assert.strictEqual(actual.errorCode.indexOf(','), 6, 'failed to generate default errorDelimiter if one is not provided');
+			assert.strictEqual(actual.errorCode.indexOf(','), 6, 'failed to support default errorDelimiter if one is not provided');
 			done();
 		});
 
-		it('should generate provided messageDelimiter', function (done) {
+		it('should support provided messageDelimiter', function (done) {
       var EC = new errCoder(errMap, {messageDelimiter: '<hr>'});
       var actual = EC.setStatus(400).add(15).send();
-      assert.strictEqual(actual.errorMessages, '<hr>meh','failed to generate provided messageDelimiter');
+      assert.strictEqual(actual.errorMessages, 'meh<hr>','failed to support provided messageDelimiter');
 			done();
 		});
+
+    it('should support default distinctCodes set to false', function (done) {
+      var EC = new errCoder(errMap);
+      var actual = EC.setStatus(400).add(15).add(15).add(15).send();
+      assert.strictEqual(actual.errorCode, 'APP400_15_15_15','support default distinctCodes set to false');
+      done();
+    });
+
+    it('should support distinctCodes set to true', function (done) {
+      var EC = new errCoder(errMap, {distinctCodes: true});
+      var actual = EC.setStatus(400).add(15).add(15).add(15).send();
+      assert.strictEqual(actual.errorCode, 'APP400_15','support default distinctCodes set to false');
+      done();
+    });
 
 		it('should throw Error when provided namespace is not string', function (done) {
 			assert.throws(
@@ -210,7 +224,7 @@ describe('error-coder tests', function() {
       var EC = new errCoder(errMap);
       var actual = EC.setStatus(400).add(25).send();
 			assert.strictEqual(actual.errorCode, 'APP400_25', 'failed to add new error - simple (message without variables) - incorrect code');
-			assert.strictEqual(actual.errorMessages, '<br>' + errMap[400][25], 'failed to add new error - simple (message without variables) - incorrect message');
+			assert.strictEqual(actual.errorMessages, errMap[400][25] + '<br>', 'failed to add new error - simple (message without variables) - incorrect message');
 			done();
 		});
 
@@ -218,7 +232,7 @@ describe('error-coder tests', function() {
       var EC = new errCoder(errMap);
       var actual = EC.setStatus(400).add(25, 'STRING').add(35, 666).add(45, {json: 'json message'}).send();
       assert.strictEqual(actual.errorCode, 'APP400_25_35_45', 'failed to add new error - with variables (message with variables) - incorrect code');
-			assert.strictEqual(actual.errorMessages, '<br>STRING msg<br>666 msg<br>{"json":"json message"} msg', 'failed to add new error - with variables (message with variables) - incorrect message');
+			assert.strictEqual(actual.errorMessages, 'STRING msg<br>666 msg<br>{"json":"json message"} msg<br>', 'failed to add new error - with variables (message with variables) - incorrect message');
 			done();
 		});
 
@@ -241,7 +255,7 @@ describe('error-coder tests', function() {
       EC.add('01');
       var actual = EC.send();
 			assert.strictEqual(actual.errorCode, 'APP500_01', 'failed to support adding after changing status - wrong error code');
-      assert.strictEqual(actual.errorMessages, '<br>' + errMap[500]['01'], 'failed to support adding after changing status - wrong error messages');
+      assert.strictEqual(actual.errorMessages, errMap[500]['01'] + '<br>', 'failed to support adding after changing status - wrong error messages');
 			done();
 		});
 
@@ -262,7 +276,7 @@ describe('error-coder tests', function() {
 				.send();
 			assert.strictEqual(actual.status, 400, 'failed to return errors object when no response parameter was sent - wrong status');
 			assert.strictEqual(actual.errorCode, 'APP400_15_25_35_45_55', 'failed to return errors object when no response parameter was sent - wrong errorCode');
-			assert.strictEqual(actual.errorMessages, '<br>meh<br>NICE msg<br>333 msg<br>{"foo":"bar"} msg<br>one two three four five', 'failed to return errors object when no response parameter was sent - wrong errorCode');
+			assert.strictEqual(actual.errorMessages, 'meh<br>NICE msg<br>333 msg<br>{"foo":"bar"} msg<br>one two three four five<br>', 'failed to return errors object when no response parameter was sent - wrong errorCode');
 			done();
 		});
 
@@ -276,7 +290,7 @@ describe('error-coder tests', function() {
 			assert.strictEqual(res.statusCode, 400, 'failed to send http response - express.js support - wrong status code');
 			assert.strictEqual(resData.status, 400, 'failed to send http response - express.js support - wrong status code in returned object');
 			assert.strictEqual(resData.errorCode, 'APP400_15', 'failed to send http response - express.js support - incorrect code');
-			assert.strictEqual(resData.errorMessages, '<br>' + errMap[400][15], 'failed to send http response - express.js support - incorrect message');
+			assert.strictEqual(resData.errorMessages, errMap[400][15] + '<br>', 'failed to send http response - express.js support - incorrect message');
 			done();
 		});
 
@@ -286,7 +300,7 @@ describe('error-coder tests', function() {
 				assert.strictEqual(res.statusCode, 400, 'failed to send http response - node.js native support - wrong status code');
 				assert.strictEqual(resData.status, 400, 'failed to send http response - node.js native support - wrong status code in returned object');
 				assert.strictEqual(resData.errorCode, 'APP400_15', 'failed to send http response - node.js native support support - incorrect code');
-				assert.strictEqual(resData.errorMessages, '<br>' + errMap[400][15], 'failed to send http response - node.js native support - incorrect message');
+				assert.strictEqual(resData.errorMessages, errMap[400][15] + '<br>', 'failed to send http response - node.js native support - incorrect message');
 				done();
 			});
 
@@ -296,5 +310,18 @@ describe('error-coder tests', function() {
       EC.send(res);
 
 		});
+
+    it('should throw Error when passing unknown response object', function (done) {
+      var EC = new errCoder(errMap);
+      assert.throws(
+        function() {
+          EC.setStatus(400);
+          EC.add(15);
+          EC.send({foo: 'bar'});
+        },
+        'failed to throw Error when trying to add error code that is not defined in the errors map'
+      );
+      done();
+    });
 	});
 });
