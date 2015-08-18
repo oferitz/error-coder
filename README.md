@@ -74,13 +74,13 @@ var EC = new ErrorCoder(options);
 Create new instance and passes the options object to the constructor class
 
 `options` include:
-  * `namespace {String}`: The name that will prefix the unique errorCode.
+  * `namespace {String}`: The name that will prefix the unique errorCode. `error-coder` enforces 3 chars long and uppercase standard.
     If omitted it will be created automatically for you, first by trying to read the name attribute from your `package.json` file,
     if the name includes '-' it takes the first letter of each separated word, otherwise it will just take the first ? 3 letters. 
-    If for some reason the name could be generatd from `package.json` file, the name space will be 'APP'.
+    If for some reason the name could be generated from `package.json` file, the name space will be 'APP'.
   * `errorsMap {Object}`: An object that define possible errors and their related messages (see example above).
   * `errorDelimiter {string}`: A character for separating the error codes. defaults to `_`.
-  * `messageDelimiter {string}`: A character for separating the errors messages. defaults to `\n`.
+  * `messageDelimiter {string}`: A character for separating the errors messages. defaults to `<br>`.
 
   
 ## EC.setStatus(statusCode)
