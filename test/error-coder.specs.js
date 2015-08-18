@@ -23,62 +23,66 @@ describe('error-coder tests', function() {
 	describe('initialization', function () {
 
 		it('should generate default namespace if one is not provided', function (done) {
-			var EC = new errCoder({errorsMap: errMap});
+			var EC = new errCoder(errMap);
 			var actual = EC.setStatus(400).add(15).send();
 			assert.strictEqual(actual.errorCode.slice(0,3), 'APP', 'failed to generate default namespace if one is not provided');
 			done();
 		});
 
-		it('should generate default errorsMap if one is not provided', function (done) {
-			var EC = new errCoder();
-			assert.strictEqual(Object.keys(EC.getErrorsMap()).length, 0, 'failed to generate default errorMap if one is not provided');
+		it('should throw Error if errorsMap is not provided', function (done) {
+      assert.throws(
+        function() {
+          new errCoder();
+        },
+        'failed to throw Error if errorsMap is not provided'
+      );
 			done();
 		});
 
 		it('should generate default errorDelimiter if one is not provided', function (done) {
-			var EC = new errCoder({errorsMap: errMap});
+			var EC = new errCoder(errMap);
 			var actual = EC.setStatus(400).add(15).send();
 			assert.strictEqual(actual.errorCode.indexOf('_'), 6, 'failed to generate default errorDelimiter if one is not provided');
 			done();
 		});
 
 		it('should generate default messageDelimiter if one is not provided', function (done) {
-      var EC = new errCoder({errorsMap: errMap});
+      var EC = new errCoder(errMap);
       var actual = EC.setStatus(400).add(15).send();
 			assert.strictEqual(actual.errorMessages, '<br>meh','failed to generate default messageDelimiter if one is not provided');
 			done();
 		});
 
 		it('should generate provided namespace', function (done) {
-      var EC = new errCoder({namespace: 'TST', errorsMap: errMap});
+      var EC = new errCoder(errMap, {namespace: 'TST'});
       var actual = EC.setStatus(400).add(15).send();
 			assert.strictEqual(actual.errorCode.slice(0,3), 'TST', 'failed to generate default namespace if one is not provided');
 			done();
 		});
 
     it('should enforce namespace standard', function (done) {
-      var EC = new errCoder({namespace: 'foobar', errorsMap: errMap});
+      var EC = new errCoder(errMap, {namespace: 'foobar'});
       var actual = EC.setStatus(400).add(15).send();
       assert.strictEqual(actual.errorCode.slice(0,3), 'FOO', 'failed to generate default namespace if one is not provided');
       done();
     });
 
 		it('should generate provided errorsMap', function (done) {
-      var EC = new errCoder({errorsMap: errMap});
+      var EC = new errCoder(errMap);
       var actual = EC.getErrorsMap();
 			assert.deepEqual(actual, errMap, 'failed to generate provided errorsMap');
 			done();
 		});
 
 		it('should generate provided errorDelimiter', function (done) {
-      var EC = new errCoder({errorsMap: errMap, errorDelimiter: ','});
+      var EC = new errCoder(errMap, {errorDelimiter: ','});
       var actual = EC.setStatus(400).add(15).send();
 			assert.strictEqual(actual.errorCode.indexOf(','), 6, 'failed to generate default errorDelimiter if one is not provided');
 			done();
 		});
 
 		it('should generate provided messageDelimiter', function (done) {
-      var EC = new errCoder({errorsMap: errMap, messageDelimiter: '<hr>'});
+      var EC = new errCoder(errMap, {messageDelimiter: '<hr>'});
       var actual = EC.setStatus(400).add(15).send();
       assert.strictEqual(actual.errorMessages, '<hr>meh','failed to generate provided messageDelimiter');
 			done();
@@ -87,7 +91,7 @@ describe('error-coder tests', function() {
 		it('should throw Error when provided namespace is not string', function (done) {
 			assert.throws(
 				function() {
-					new errCoder({namespace: 6});
+					new errCoder(errMap, {namespace: 6});
 				},
 				'failed to throw Error when provided namespace is not string'
 			);
@@ -97,7 +101,7 @@ describe('error-coder tests', function() {
 		it('should throw Error when provided errorsMap is not an Object', function (done) {
 			assert.throws(
 				function() {
-					new errCoder({errorsMap: 6});
+					new errCoder(6);
 				},
 				'failed to throw Error when provided errorsMap is not an Object'
 			);
@@ -107,7 +111,7 @@ describe('error-coder tests', function() {
 		it('should throw Error when provided errorDelimiter is not a String', function (done) {
 			assert.throws(
 				function() {
-					new errCoder({errorDelimiter: 6});
+					new errCoder(errMap, {errorDelimiter: 6});
 				},
 				'failed to throw Error when provided errorDelimiter is not a String'
 			);
@@ -117,7 +121,7 @@ describe('error-coder tests', function() {
 		it('should throw Error when provided messageDelimiter is not a String', function (done) {
 			assert.throws(
 				function() {
-					new errCoder({messageDelimiter: 6});
+					new errCoder(errMap, {messageDelimiter: 6});
 				},
 				'failed to throw Error when provided messageDelimiter is not a String'
 			);
@@ -127,7 +131,7 @@ describe('error-coder tests', function() {
 
 	describe('setStatus method', function () {
 		it('should throw Error when statusCode is not provided', function (done) {
-      var EC = new errCoder({errorsMap: errMap});
+      var EC = new errCoder(errMap);
 			assert.throws(
 				function() {
           EC.setStatus();
@@ -159,7 +163,7 @@ describe('error-coder tests', function() {
     });
 
 		it('should set the current status', function (done) {
-      var EC = new errCoder({errorsMap: errMap});
+      var EC = new errCoder(errMap);
       var actual = EC.setStatus(400).add(15).send();
 			assert.strictEqual(actual.errorCode.slice(3,6), '400', 'failed to set the current status');
       actual = EC.setStatus(500).add(15).send();
@@ -170,7 +174,7 @@ describe('error-coder tests', function() {
 
 	describe('add method', function () {
 		it('should throw Error when not passing error code', function (done) {
-      var EC = new errCoder({errorsMap: errMap});
+      var EC = new errCoder(errMap);
 			assert.throws(
 				function() {
 					ec.add();
@@ -181,7 +185,7 @@ describe('error-coder tests', function() {
 		});
 
 		it('should throw Error when trying to add error before setting status', function (done) {
-      var EC = new errCoder({errorsMap: errMap});
+      var EC = new errCoder(errMap);
 			assert.throws(
 				function() {
           EC.add(15);
@@ -192,7 +196,7 @@ describe('error-coder tests', function() {
 		});
 
     it('should throw Error when trying to add error code that is not defined in the errors map', function (done) {
-      var EC = new errCoder({errorsMap: errMap});
+      var EC = new errCoder(errMap);
       assert.throws(
         function() {
           EC.setStatus(400).add(95);
@@ -203,7 +207,7 @@ describe('error-coder tests', function() {
     });
 
 		it('should add new error - simple (message without variables)', function (done) {
-      var EC = new errCoder({errorsMap: errMap});
+      var EC = new errCoder(errMap);
       var actual = EC.setStatus(400).add(25).send();
 			assert.strictEqual(actual.errorCode, 'APP400_25', 'failed to add new error - simple (message without variables) - incorrect code');
 			assert.strictEqual(actual.errorMessages, '<br>' + errMap[400][25], 'failed to add new error - simple (message without variables) - incorrect message');
@@ -211,7 +215,7 @@ describe('error-coder tests', function() {
 		});
 
 		it('should add new error - with variables (message with variables)', function (done) {
-      var EC = new errCoder({errorsMap: errMap});
+      var EC = new errCoder(errMap);
       var actual = EC.setStatus(400).add(25, 'STRING').add(35, 666).add(45, {json: 'json message'}).send();
       assert.strictEqual(actual.errorCode, 'APP400_25_35_45', 'failed to add new error - with variables (message with variables) - incorrect code');
 			assert.strictEqual(actual.errorMessages, '<br>STRING msg<br>666 msg<br>{"json":"json message"} msg', 'failed to add new error - with variables (message with variables) - incorrect message');
@@ -220,7 +224,7 @@ describe('error-coder tests', function() {
 
 
 		it('should support alpha-numeric error codes', function (done) {
-      var EC = new errCoder({errorsMap: errMap});
+      var EC = new errCoder(errMap);
       EC.setStatus(500);
       EC.add(15)
 				.add('AA');
@@ -230,7 +234,7 @@ describe('error-coder tests', function() {
 		});
 
 		it('should support adding after changing status', function (done) {
-      var EC = new errCoder({errorsMap: errMap});
+      var EC = new errCoder(errMap);
       EC.setStatus(400);
       EC.add(15);
       EC.setStatus(500);
@@ -247,7 +251,7 @@ describe('error-coder tests', function() {
 
 		it('should return errors object when no response parameter was sent', function (done) {
 
-      var EC = new errCoder({errorsMap: errMap});
+      var EC = new errCoder(errMap);
 			var actual = EC
 				.setStatus(400)
         .add(15)
@@ -264,7 +268,7 @@ describe('error-coder tests', function() {
 
 		it('should send http response - express.js support', function (done) {
 			var res = httpMocks.createResponse();
-      var EC = new errCoder({errorsMap: errMap});
+      var EC = new errCoder(errMap);
       EC.setStatus(400);
       EC.add(15);
       EC.send(res);
@@ -286,7 +290,7 @@ describe('error-coder tests', function() {
 				done();
 			});
 
-      var EC = new errCoder({errorsMap: errMap});
+      var EC = new errCoder(errMap);
       EC.setStatus(400);
       EC.add(15);
       EC.send(res);
