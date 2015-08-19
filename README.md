@@ -11,7 +11,7 @@ A node.js module that generates unique error codes.
 ```js
 var ErrorCoder = require('error-coder');
 
-var errMap = {
+var errorsMap = {
   400: {
     15: 'invalid request object - %s',
     25: 'horrible error number %d'
@@ -26,7 +26,7 @@ var errMap = {
   }
  
 // create new instance
-var EC = new ErrorCoder(errMap, { namespace: 'APP' });
+var EC = new ErrorCoder(errorsMap, { namespace: 'APP' });
 
 function handleRequest(req, res) {
   // validations: set status for all potential 422 errors
@@ -73,16 +73,16 @@ var EC = new ErrorCoder(errorsMap, options);
 
 Create new instance and passes the options object to the constructor class
 
-`errorsMap {Object}`: **Required**. An object that define possible errors and their related messages (see example above).
+**`errorsMap {Object}`**: **Required**. An object that define possible errors and their related messages (see example above).
 
 `options` include:
-  * `namespace {String}`: The name that will prefix the unique errorCode. `error-coder` enforces 3 chars long and uppercase standard.
+  * **namespace {String}**: The name that will prefix the unique errorCode. `error-coder` enforces 3 chars long and uppercase standard.
     If omitted it will be created automatically for you, first by trying to read the name attribute from your `package.json` file,
     if the name includes '-' it takes the first letter of each separated word, otherwise it will just take the first ? 3 letters. 
     If for some reason the name could be generated from `package.json` file, the name space will be 'APP'.
-  * `errorDelimiter {String}`: A character for separating the error codes. defaults to `_`.
-  * `messageDelimiter {String}`: A character for separating the errors messages. defaults to `<br>`.
-  * `distinctCodes {Boolean}`: remove duplicate codes from the generated errorCode. defaults to `false`.
+  * **errorDelimiter {String}**: A character for separating the error codes. defaults to `_`.
+  * **messageDelimiter {String}**: A character for separating the errors messages. defaults to `<br>`.
+  * **distinctCodes {Boolean}**: remove duplicate codes from the generated errorCode. defaults to `false`.
   
 ### example using options
   ```js
@@ -130,7 +130,7 @@ The `response` could be "native" node.js `http.ServerResponse` or express.js res
 
 ## EC.getErrorsMap()
 
-returns the current errorsMap
+returns the current errorsMap.
 
 
 # install
