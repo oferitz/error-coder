@@ -1,6 +1,6 @@
 {
   "name": "error-coder",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "A node.js module that generates unique error codes.",
   "main": "index.js",
   "directories": {
